@@ -1,0 +1,23 @@
+@page
+@model CodingMilitia.PlayBall.Auth.Web.Pages.RegisterModel
+
+<h1>Register</h1>
+<form asp-route-returnUrl="@Model.ReturnUrl" method="post">
+    <div asp-validation-summary="All"></div>
+    <div >
+        <label asp-for="Input.Email"></label>
+        <input asp-for="Input.Email"/>
+        <span asp-validation-for="Input.Email"></span>
+    </div>
+    <div>
+        <label asp-for="Input.Password"></label>
+        <input asp-for="Input.Password"/>
+        <span asp-validation-for="Input.Password"></span>
+    </div>
+    <div >
+        <label asp-for="Input.ConfirmPassword"></label>
+        <input asp-for="Input.ConfirmPassword"/>
+        <span asp-validation-for="Input.ConfirmPassword"></span>
+    </div>
+    <button type="submit">Register</button>
+</form>

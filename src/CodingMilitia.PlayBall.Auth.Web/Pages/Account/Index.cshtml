@@ -1,0 +1,33 @@
+@page
+@model CodingMilitia.PlayBall.Auth.Web.Pages.Account.IndexModel
+
+
+<form asp-page="../Logout" method="post">
+    <button type="submit">Logout</button>
+</form>
+<div>@Model.StatusMessage</div>
+<div >
+    <form id="profile-form" method="post">
+        <div asp-validation-summary="All"></div>
+        <div>
+            <label asp-for="Username"></label>
+            <input asp-for="Username" disabled/>
+        </div>
+        <div>
+            <label asp-for="Input.Email"></label>
+            @if (Model.IsEmailConfirmed)
+            {
+                <div>
+                    <input asp-for="Input.Email"/>
+                </div>
+            }
+            else
+            {
+                <input asp-for="Input.Email"/>
+                <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail">Send verification email</button>
+            }
+            <span asp-validation-for="Input.Email"></span>
+        </div>
+        <button id="update-profile-button" type="submit">Save</button>
+    </form>
+</div>

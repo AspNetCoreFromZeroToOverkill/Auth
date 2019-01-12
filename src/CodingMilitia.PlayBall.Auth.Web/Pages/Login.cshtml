@@ -1,0 +1,37 @@
+@page
+@model CodingMilitia.PlayBall.Auth.Web.Pages.LoginModel
+
+<h1>Login</h1>
+
+<form method="post">
+    <div asp-validation-summary="All"></div>
+    <div>
+        <label asp-for="Input.Email"></label>
+        <input asp-for="Input.Email"/>
+        <span asp-validation-for="Input.Email"></span>
+    </div>
+    <div >
+        <label asp-for="Input.Password"></label>
+        <input asp-for="Input.Password"/>
+        <span asp-validation-for="Input.Password"></span>
+    </div>
+    <div >
+        <div>
+            <label asp-for="Input.RememberMe">
+                <input asp-for="Input.RememberMe"/>
+                @Html.DisplayNameFor(m => m.Input.RememberMe)
+            </label>
+        </div>
+    </div>
+    <div >
+        <button type="submit">Log in</button>
+    </div>
+    <div >
+        <p>
+            <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+        </p>
+        <p>
+            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+        </p>
+    </div>
+</form>
