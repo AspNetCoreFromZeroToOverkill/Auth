@@ -1,0 +1,47 @@
+@page
+@model CodingMilitia.PlayBall.Auth.Web.Pages.Account.ManageTwoFactorModel
+<div>@Model.StatusMessage</div>
+@if (Model.IsTwoFactorEnabled)
+{
+    if (Model.RecoveryCodesLeft == 0)
+    {
+        <div class="alert alert-danger">
+            <strong>You have no recovery codes left.</strong>
+            <p>You must <a asp-page="./GenerateRecoveryCodes">generate a new set of recovery codes</a> before you can log in with a recovery code.</p>
+        </div>
+    }
+    else if (Model.RecoveryCodesLeft == 1)
+    {
+        <div class="alert alert-danger">
+            <strong>You have 1 recovery code left.</strong>
+            <p>You can <a asp-page="./GenerateRecoveryCodes">generate a new set of recovery codes</a>.</p>
+        </div>
+    }
+    else if (Model.RecoveryCodesLeft <= 3)
+    {
+        <div class="alert alert-warning">
+            <strong>You have @Model.RecoveryCodesLeft recovery codes left.</strong>
+            <p>You should <a asp-page="./GenerateRecoveryCodes">generate a new set of recovery codes</a>.</p>
+        </div>
+    }
+
+    if (Model.IsMachineRemembered)
+    {
+        <form method="post" style="display: inline-block">
+            <button type="submit" class="btn btn-primary">Forget this browser</button>
+        </form>
+    }
+    <a asp-page="./DisableTwoFactor" class="btn btn-primary">Disable two factor authentication</a>
+    <a asp-page="./GenerateRecoveryCodes" class="btn btn-primary">Reset recovery codes</a>
+}
+
+<h5>Authenticator app</h5>
+@if (!Model.HasAuthenticator)
+{
+    <a id="enable-authenticator" asp-page="./AddTwoFactorApp" class="btn btn-primary">Setup authenticator app</a>
+}
+else
+{
+    <a id="enable-authenticator" asp-page="./AddTwoFactorApp" class="btn btn-primary">Setup another authenticator app</a>
+    <a id="reset-authenticator" asp-page="./ResetTwoFactorApp" class="btn btn-primary">Reset authenticator app</a>
+}
