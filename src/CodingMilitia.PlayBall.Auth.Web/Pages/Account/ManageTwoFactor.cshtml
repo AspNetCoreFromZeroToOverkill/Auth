@@ -1,5 +1,9 @@
 @page
 @model CodingMilitia.PlayBall.Auth.Web.Pages.Account.ManageTwoFactorModel
+@{
+    ViewData["Title"] = "Manage two-factor authentication";
+}
+<h4>@ViewData["Title"]</h4>
 <div>@Model.StatusMessage</div>
 @if (Model.IsTwoFactorEnabled)
 {
@@ -31,7 +35,7 @@
             <button type="submit" class="btn btn-primary">Forget this browser</button>
         </form>
     }
-    <a asp-page="./DisableTwoFactor" class="btn btn-primary">Disable two factor authentication</a>
+    <a asp-page="./DisableTwoFactor" class="btn btn-primary">Disable two-factor authentication</a>
     <a asp-page="./GenerateRecoveryCodes" class="btn btn-primary">Reset recovery codes</a>
 }
 

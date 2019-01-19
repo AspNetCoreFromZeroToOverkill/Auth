@@ -1,5 +1,9 @@
 @page
 @model CodingMilitia.PlayBall.Auth.Web.Pages.Account.GenerateRecoveryCodesModel
+@{
+    ViewData["Title"] = "Generate two-factor authentication recovery codes";
+}
+<h4>@ViewData["Title"]</h4>
 <div>@Model.StatusMessage</div>
 <div class="alert alert-warning" role="alert">
     <p>

@@ -1,17 +1,20 @@
 @page
 @model CodingMilitia.PlayBall.Auth.Web.Pages.Account.AddTwoFactorAppModel
-
+@{
+    ViewData["Title"] = "Add two-factor authenticator app";
+}
+<h4>@ViewData["Title"]</h4>
 <div>@Model.StatusMessage</div>
 <div>
     <p>To use an authenticator app go through the following steps:</p>
     <ol class="list">
         <li>
-            <p>Scan the QR Code or enter this key <kbd>@Model.SharedKey</kbd> into your two factor authenticator app. Spaces and casing do not matter.</p>
+            <p>Scan the QR Code or enter this key <kbd>@Model.SharedKey</kbd> into your two-factor authenticator app. Spaces and casing do not matter.</p>
             <img src="data:image/png;base64,@Model.QrCode" />
         </li>
         <li>
             <p>
-                Once you have scanned the QR code or input the key above, your two factor authentication app will provide you
+                Once you have scanned the QR code or input the key above, your two-factor authentication app will provide you
                 with a unique code. Enter the code in the confirmation box below.
             </p>
             <div class="row">
