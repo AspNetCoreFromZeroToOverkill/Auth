@@ -91,6 +91,8 @@ namespace CodingMilitia.PlayBall.Auth.Web
         public Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
             _logger.LogWarning("Dummy IEmailSender implementation is being used!!!");
+            // added to be able to use the confirmation link
+            _logger.LogDebug($"{email}{Environment.NewLine}{subject}{Environment.NewLine}{htmlMessage}");
             return Task.CompletedTask;
         }
     }
