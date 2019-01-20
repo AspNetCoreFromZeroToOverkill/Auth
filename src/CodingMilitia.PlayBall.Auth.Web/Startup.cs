@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CodingMilitia.PlayBall.Auth.Web.Data;
+using CodingMilitia.PlayBall.Auth.Web.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -64,6 +65,7 @@ namespace CodingMilitia.PlayBall.Auth.Web
             });
 
             services.AddSingleton<IEmailSender, DummyEmailSender>();
+            services.AddSingleton<IBase64QrCodeGenerator, Base64QrCodeGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,8 +76,8 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHsts(); // added - https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet
-            app.UseHttpsRedirection(); // added - if a request comes in HTTP, it's redirect to HTTPS
+            app.UseHsts(); // https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet
+            app.UseHttpsRedirection(); // if a request comes in HTTP, it's redirect to HTTPS
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseMvcWithDefaultRoute();
@@ -94,7 +96,6 @@ namespace CodingMilitia.PlayBall.Auth.Web
         public Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
             _logger.LogWarning("Dummy IEmailSender implementation is being used!!!");
-            // added to be able to use the confirmation link
             _logger.LogDebug($"{email}{Environment.NewLine}{subject}{Environment.NewLine}{htmlMessage}");
             return Task.CompletedTask;
         }
