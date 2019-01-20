@@ -24,7 +24,7 @@ namespace CodingMilitia.PlayBall.Auth.Web
         {
             _configuration = configuration;
         }
-        
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -42,6 +42,7 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 options.UseNpgsql(_configuration.GetConnectionString("AuthDbContext"));
             });
             
+
             services
                 .AddIdentity<PlayBallUser, IdentityRole>(options =>
                 {
@@ -61,7 +62,7 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 options.LogoutPath = "/Logout";
                 options.AccessDeniedPath = "/AccessDenied";
             });
-            
+
             services.AddSingleton<IEmailSender, DummyEmailSender>();
         }
 
@@ -72,7 +73,9 @@ namespace CodingMilitia.PlayBall.Auth.Web
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
+            app.UseHsts(); // added - https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet
+            app.UseHttpsRedirection(); // added - if a request comes in HTTP, it's redirect to HTTPS
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseMvcWithDefaultRoute();
