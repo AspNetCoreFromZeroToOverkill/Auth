@@ -30,6 +30,7 @@
             <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-link">Send verification email</button>
         }
         <span asp-validation-for="Input.Email" class="text-danger"></span>
+        <button id="update-profile-button" type="submit" class="btn btn-primary">Save</button>
     </div>
     <div>
         <a asp-page="./ChangePassword" class="btn btn-primary">Change password</a>
@@ -44,5 +45,7 @@
             <a asp-page="./ManageTwoFactor" class="btn btn-link">Enable two-factor authentication</a>
         }
     </div>
-    <button id="update-profile-button" type="submit" class="btn btn-primary">Save</button>
+    <div>
+        <button id="personal-data" type="submit" asp-page="./DownloadPersonalData" class="btn btn-link">Download my information</button>
+    </div>
 </form>
