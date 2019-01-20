@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CodingMilitia.PlayBall.Auth.Web.Data;
+using CodingMilitia.PlayBall.Auth.Web.Utilities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +25,7 @@ namespace CodingMilitia.PlayBall.Auth.Web
         {
             _configuration = configuration;
         }
-        
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -42,6 +43,7 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 options.UseNpgsql(_configuration.GetConnectionString("AuthDbContext"));
             });
             
+
             services
                 .AddIdentity<PlayBallUser, IdentityRole>(options =>
                 {
@@ -61,8 +63,9 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 options.LogoutPath = "/Logout";
                 options.AccessDeniedPath = "/AccessDenied";
             });
-            
+
             services.AddSingleton<IEmailSender, DummyEmailSender>();
+            services.AddSingleton<IBase64QrCodeGenerator, Base64QrCodeGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -72,7 +75,9 @@ namespace CodingMilitia.PlayBall.Auth.Web
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
+            app.UseHsts(); // https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet
+            app.UseHttpsRedirection(); // if a request comes in HTTP, it's redirect to HTTPS
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseMvcWithDefaultRoute();
@@ -91,6 +96,7 @@ namespace CodingMilitia.PlayBall.Auth.Web
         public Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
             _logger.LogWarning("Dummy IEmailSender implementation is being used!!!");
+            _logger.LogDebug($"{email}{Environment.NewLine}{subject}{Environment.NewLine}{htmlMessage}");
             return Task.CompletedTask;
         }
     }

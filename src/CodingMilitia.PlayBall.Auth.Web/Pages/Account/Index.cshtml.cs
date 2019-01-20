@@ -29,6 +29,8 @@ namespace CodingMilitia.PlayBall.Auth.Web.Pages.Account
         public string Username { get; set; }
 
         public bool IsEmailConfirmed { get; set; }
+        
+        public bool IsTwoFactorEnabled { get; set; }
 
         [TempData]
         public string StatusMessage { get; set; }
@@ -62,6 +64,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Pages.Account
             };
 
             IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+            IsTwoFactorEnabled = user.TwoFactorEnabled;
 
             return Page();
         }
@@ -82,16 +85,20 @@ namespace CodingMilitia.PlayBall.Auth.Web.Pages.Account
             var email = await _userManager.GetEmailAsync(user);
             if (Input.Email != email)
             {
-                //TODO: what if the first succeeds but the second fails?
-                var setUserNameResult = await _userManager.SetUserNameAsync(user, Input.Email);
-                var setEmailResult = setUserNameResult.Succeeded
-                    ? (await _userManager.SetEmailAsync(user, Input.Email))
-                    : IdentityResult.Failed();
-                
-                if (!setUserNameResult.Succeeded || !setEmailResult.Succeeded)
+                var setEmailResult = await _userManager.SetEmailAsync(user, Input.Email);
+                if (!setEmailResult.Succeeded)
                 {
                     var userId = await _userManager.GetUserIdAsync(user);
                     throw new InvalidOperationException($"Unexpected error occurred setting email for user with ID '{userId}'.");
+                }
+
+                // In this application, the email and the username are the same, so when we update the email we need to update the user name.
+                //TODO: what if setting the email succeeds but the username fails? keep track of this issue -> https://github.com/aspnet/AspNetCore/issues/6613
+                var setUserNameResult = await _userManager.SetUserNameAsync(user, Input.Email);
+                if (!setUserNameResult.Succeeded)
+                {
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    throw new InvalidOperationException($"Unexpected error occurred setting name for user with ID '{userId}'.");
                 }
             }
 
@@ -118,7 +125,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Pages.Account
             var email = await _userManager.GetEmailAsync(user);
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var callbackUrl = Url.Page(
-                "/Account/ConfirmEmail",
+                "/ConfirmEmail",
                 pageHandler: null,
                 values: new { userId = userId, code = code },
                 protocol: Request.Scheme);
