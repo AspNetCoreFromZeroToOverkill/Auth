@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/css/bootstrap.css"/>    
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/lib/css/bootstrap.min.css"/>    
+    </environment>
+</head>
+<body>
+<div class="container">
+    @RenderBody()
+</div>
+</body>
+</html>
