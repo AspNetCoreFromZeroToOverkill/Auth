@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace CodingMilitia.PlayBall.Auth.Web.Pages
@@ -14,11 +15,19 @@ namespace CodingMilitia.PlayBall.Auth.Web.Pages
     {
         private readonly SignInManager<PlayBallUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly IStringLocalizer<LoginModel> _localizer;
+        private readonly IStringLocalizer<SharedResource> _sharedLocalizer;
 
-        public LoginModel(SignInManager<PlayBallUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(
+            SignInManager<PlayBallUser> signInManager, 
+            ILogger<LoginModel> logger, 
+            IStringLocalizer<LoginModel> localizer,
+            IStringLocalizer<SharedResource> sharedLocalizer)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _localizer = localizer;
+            _sharedLocalizer = sharedLocalizer;
         }
 
         [BindProperty]
@@ -39,12 +48,13 @@ namespace CodingMilitia.PlayBall.Auth.Web.Pages
             [DataType(DataType.Password)]
             public string Password { get; set; }
 
-            [Display(Name = "Remember me?")]
+            [Display(Name = "RememberMe")]
             public bool RememberMe { get; set; }
         }
         
         public void OnGet(string returnUrl = null)
         {
+            _logger.LogDebug(_sharedLocalizer["SampleSharedString"]);
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 ModelState.AddModelError(string.Empty, ErrorMessage);
@@ -76,7 +86,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Pages
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, _localizer["InvalidLoginAttempt"]);
                     return Page();
                 }
             }
