@@ -1,5 +1,8 @@
 ﻿using CodingMilitia.PlayBall.Auth.Web.Data;
+using CodingMilitia.PlayBall.Auth.Web.Policies.Handlers;
+using CodingMilitia.PlayBall.Auth.Web.Policies.Requirements;
 using CodingMilitia.PlayBall.Auth.Web.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Globalization;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CodingMilitia.PlayBall.Auth.Web
@@ -39,6 +43,7 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 .AddRazorPagesOptions(options =>
                 {
                     options.Conventions.AuthorizeFolder("/Account");
+                    options.Conventions.AuthorizePage("/Admin/ConventionPolicyProtected", "AnotherSamplePolicy");
                 })
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
                 .AddDataAnnotationsLocalization();
@@ -60,7 +65,6 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 options.UseNpgsql(_configuration.GetConnectionString("AuthDbContext"));
             });
 
-
             services
                 .AddIdentity<PlayBallUser, IdentityRole>(options =>
                 {
@@ -73,6 +77,14 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 })
                 .AddEntityFrameworkStores<AuthDbContext>()
                 .AddDefaultTokenProviders();
+            
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("SamplePolicy", policy => policy.RequireClaim(ClaimTypes.Role, "admin"));
+                options.AddPolicy("AnotherSamplePolicy", policy => policy.Requirements.Add(new UsernameRequirement(".*someone.*")));
+            });
+
+            services.AddSingleton<IAuthorizationHandler, UsernameRequirementHandler>();
 
             services.ConfigureApplicationCookie(options =>
             {
