@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 
 namespace CodingMilitia.PlayBall.Auth.Web.Pages
 {
-    [AllowAnonymous]
     public class LogoutModel : PageModel
     {
         private readonly SignInManager<PlayBallUser> _signInManager;

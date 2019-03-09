@@ -25,76 +25,29 @@ namespace CodingMilitia.PlayBall.Auth.Web
     public class Startup
     {
         private readonly IConfiguration _configuration;
+        private readonly IHostingEnvironment _environment;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
             _configuration = configuration;
+            _environment = environment;
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLocalization(options => options.ResourcesPath = "Resources");
-
             services
-                .AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                .AddRazorPagesOptions(options =>
+                .AddConfiguredMvc()
+                .AddConfiguredLocalization()
+                .AddConfiguredIdentity(_configuration)
+                .ConfigureApplicationCookie(options =>
                 {
-                    options.Conventions.AuthorizeFolder("/Account");
-                    options.Conventions.AuthorizePage("/Admin/ConventionPolicyProtected", "AnotherSamplePolicy");
+                    options.LoginPath = "/Login";
+                    options.LogoutPath = "/Logout";
+                    options.AccessDeniedPath = "/AccessDenied";
                 })
-                .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
-                .AddDataAnnotationsLocalization();
+                .AddConfiguredIdentityServer(_environment, _configuration);
 
-            services.Configure<RequestLocalizationOptions>(options =>
-            {
-                var cultures = new[]
-                {
-                    new CultureInfo("en"),
-                    new CultureInfo("pt")
-                };
-                options.DefaultRequestCulture = new RequestCulture("en");
-                options.SupportedCultures = cultures;
-                options.SupportedUICultures = cultures;
-            });
-
-            services.AddDbContext<AuthDbContext>(options =>
-            {
-                options.UseNpgsql(_configuration.GetConnectionString("AuthDbContext"));
-            });
-
-            services
-                .AddIdentity<PlayBallUser, IdentityRole>(options =>
-                {
-                    options.Password.RequireDigit = false;
-                    //TODO: uncomment after some tests
-                    //options.Password.RequiredLength = 12; 
-                    options.Password.RequireLowercase = false;
-                    options.Password.RequireUppercase = false;
-                    options.Password.RequireNonAlphanumeric = false;
-                })
-                .AddEntityFrameworkStores<AuthDbContext>()
-                .AddDefaultTokenProviders();
             
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("SamplePolicy", policy => policy.RequireClaim(ClaimTypes.Role, "admin"));
-                options.AddPolicy("AnotherSamplePolicy", policy => policy.Requirements.Add(new UsernameRequirement(".*someone.*")));
-            });
-
-            services.AddSingleton<IAuthorizationHandler, UsernameRequirementHandler>();
-
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.LoginPath = "/Login";
-                options.LogoutPath = "/Logout";
-                options.AccessDeniedPath = "/AccessDenied";
-            });
-
-            services.AddSingleton<IEmailSender, DummyEmailSender>();
-            services.AddSingleton<IBase64QrCodeGenerator, Base64QrCodeGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -108,26 +61,10 @@ namespace CodingMilitia.PlayBall.Auth.Web
             app.UseHsts(); // https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet
             app.UseHttpsRedirection(); // if a request comes in HTTP, it's redirect to HTTPS
             app.UseStaticFiles();
+            app.UseIdentityServer();
             app.UseRequestLocalization(app.ApplicationServices.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
             app.UseAuthentication();
             app.UseMvcWithDefaultRoute();
-        }
-    }
-
-    internal class DummyEmailSender : IEmailSender
-    {
-        private readonly ILogger<DummyEmailSender> _logger;
-
-        public DummyEmailSender(ILogger<DummyEmailSender> logger)
-        {
-            _logger = logger;
-        }
-
-        public Task SendEmailAsync(string email, string subject, string htmlMessage)
-        {
-            _logger.LogWarning("Dummy IEmailSender implementation is being used!!!");
-            _logger.LogDebug($"{email}{Environment.NewLine}{subject}{Environment.NewLine}{htmlMessage}");
-            return Task.CompletedTask;
         }
     }
 }
