@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace CodingMilitia.PlayBall.Auth.Web.Migrations
+namespace CodingMilitia.PlayBall.Auth.Web.Migrations.Auth
 {
     public partial class RemoveSampleColumnFromPlayBallUser : Migration
     {

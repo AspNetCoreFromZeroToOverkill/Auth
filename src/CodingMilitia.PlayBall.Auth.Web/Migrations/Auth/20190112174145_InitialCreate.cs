@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace CodingMilitia.PlayBall.Auth.Web.Migrations
+namespace CodingMilitia.PlayBall.Auth.Web.Migrations.Auth
 {
     public partial class InitialCreate : Migration
     {
