@@ -103,8 +103,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        "GroupManagement",
-                        IdentityServerConstants.StandardScopes.OfflineAccess
+                        "GroupManagement"
                     },
                     AllowOfflineAccess = true,
                     AccessTokenLifetime = 60,
