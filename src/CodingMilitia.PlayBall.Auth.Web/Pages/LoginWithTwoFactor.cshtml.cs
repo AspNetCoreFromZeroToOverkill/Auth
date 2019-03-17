@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 
 namespace CodingMilitia.PlayBall.Auth.Web.Pages
 {
-    [AllowAnonymous]
     public class LoginWithTwoFactorModel : PageModel
     {
         private readonly SignInManager<PlayBallUser> _signInManager;

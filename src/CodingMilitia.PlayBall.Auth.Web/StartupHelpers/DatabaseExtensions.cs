@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CodingMilitia.PlayBall.Auth.Web.Data;
+using IdentityServer4.EntityFramework.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,8 +16,11 @@ namespace Microsoft.AspNetCore.Hosting
                 var hostingEnvironment = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
                 if (hostingEnvironment.IsDevelopment() || hostingEnvironment.IsEnvironment("DockerDevelopment"))
                 {
-                    var context = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-                    await context.Database.MigrateAsync();    
+                    var authDbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+                    await authDbContext.Database.MigrateAsync();
+
+                    var grantDbContext = scope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
+                    await grantDbContext.Database.MigrateAsync();
                 }
             }
         }

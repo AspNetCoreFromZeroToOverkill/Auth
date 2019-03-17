@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace CodingMilitia.PlayBall.Auth.Web.Pages
 {
-    [AllowAnonymous]
     public class ForgotPasswordConfirmationModel : PageModel
     {
         public void OnGet()

@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace CodingMilitia.PlayBall.Auth.Web.Migrations
+namespace CodingMilitia.PlayBall.Auth.Web.Migrations.Auth
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20190112174303_AddedSampleColumnToPlayBallUser")]
-    partial class AddedSampleColumnToPlayBallUser
+    [Migration("20190112174145_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -52,8 +52,6 @@ namespace CodingMilitia.PlayBall.Auth.Web.Migrations
                     b.Property<string>("PhoneNumber");
 
                     b.Property<bool>("PhoneNumberConfirmed");
-
-                    b.Property<string>("Sample");
 
                     b.Property<string>("SecurityStamp");
 
