@@ -60,7 +60,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 //.AddResourceStoreCache<SomeCacheImplementation>()
 
 
-            if (environment.IsDevelopment())
+            if (environment.IsDevelopment() || environment.IsEnvironment("DockerDevelopment"))
             {
                 builder.AddDeveloperSigningCredential();
             }
