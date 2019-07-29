@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CodingMilitia.PlayBall.Auth.Web.Configuration;
 using CodingMilitia.PlayBall.Auth.Web.Data;
 using IdentityServer4;
 using IdentityServer4.Models;
@@ -12,8 +13,12 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IdentityServerExtensions
     {
-        public static IServiceCollection AddConfiguredIdentityServer(this IServiceCollection services,
-            IHostingEnvironment environment, IConfiguration configuration)
+        private const string GroupManagementApiScopeName = "GroupManagement";
+
+        public static IServiceCollection AddConfiguredIdentityServer(
+            this IServiceCollection services,
+            IHostingEnvironment environment,
+            IConfiguration configuration)
         {
             var builder = services.AddIdentityServer(options =>
                 {
@@ -29,10 +34,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 // APIs that may be accessed
                 .AddInMemoryApiResources(GetApis())
                 // client applications that may access users data and APIs on the user's behalf
-                .AddInMemoryClients(GetClients())
+                .AddInMemoryClients(GetClients(configuration))
                 // configures IdentityServer integration with ASP.NET Core Identity
                 .AddAspNetIdentity<PlayBallUser>()
-                
+
                 // more about EF integration:
                 // - http://docs.identityserver.io/en/latest/quickstarts/7_entity_framework.html
                 // - http://docs.identityserver.io/en/latest/reference/ef.html?highlight=dbcontext
@@ -69,18 +74,16 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static IEnumerable<IdentityResource> GetIdentityResources()
         {
-            var profile = new IdentityResources.Profile();
-            profile.Required = true;
             return new IdentityResource[]
             {
                 new IdentityResources.OpenId(),
-                profile
+                new IdentityResources.Profile { Required = true }
             };
         }
 
         private static IEnumerable<ApiResource> GetApis()
         {
-            var apiResource = new ApiResource("GroupManagement", "Group Management");
+            var apiResource = new ApiResource(GroupManagementApiScopeName, "Group Management");
             apiResource.Scopes.First().Required = true;
             return new[]
             {
@@ -88,27 +91,33 @@ namespace Microsoft.Extensions.DependencyInjection
             };
         }
 
-        private static IEnumerable<Client> GetClients()
+        private static IEnumerable<Client> GetClients(IConfiguration configuration)
         {
+            // we'll have only one application for now, 
+            // but in the future it would be good to extract all to configuration instead of just a couple
+            var clientConfig = configuration
+                .GetSection(nameof(WebFrontendClientSettings))
+                .Get<WebFrontendClientSettings>();
+
             return new[]
             {
                 new Client
                 {
                     ClientId = "WebFrontend",
                     AllowedGrantTypes = GrantTypes.Code,
-                    ClientSecrets = {new Secret("secret".Sha256())},
-                    RedirectUris = new[] {"http://localhost:5000/signin-oidc"},
+                    ClientSecrets = {new Secret(clientConfig.Secret.Sha256())},
+                    RedirectUris = clientConfig.RedirectUris,
                     RefreshTokenUsage = TokenUsage.OneTimeOnly,
                     AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        "GroupManagement"
+                        GroupManagementApiScopeName
                     },
                     AllowOfflineAccess = true,
-                    AccessTokenLifetime = 60,
+                    AccessTokenLifetime = clientConfig.AccessTokenLifetime,
                     RefreshTokenExpiration = TokenExpiration.Sliding,
-                    //RequireConsent = false
+                    RequireConsent = false
                 }
             };
         }
