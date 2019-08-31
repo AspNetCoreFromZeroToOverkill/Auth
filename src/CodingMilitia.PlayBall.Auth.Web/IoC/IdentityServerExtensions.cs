@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using CodingMilitia.PlayBall.Auth.Web.Configuration;
 using CodingMilitia.PlayBall.Auth.Web.Data;
 using IdentityServer4;
@@ -56,13 +57,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 })
                 // to avoid bombarding the db with checks, make use of cache
                 .AddInMemoryCaching();
-                // we could implement our own cache if we wanted, for instance, using Redis
-                //.AddResourceStoreCache<SomeCacheImplementation>()
-
+            // we could implement our own cache if we wanted, for instance, using Redis
+            //.AddResourceStoreCache<SomeCacheImplementation>()
 
             if (environment.IsDevelopment() || environment.IsEnvironment("DockerDevelopment"))
             {
-                builder.AddDeveloperSigningCredential();
+                builder.AddDeveloperSigningCredential(
+                    filename: configuration
+                        .GetSection<SigningCredentialSettings>(nameof(SigningCredentialSettings))
+                        .DeveloperCredentialFilePath);
             }
             else
             {

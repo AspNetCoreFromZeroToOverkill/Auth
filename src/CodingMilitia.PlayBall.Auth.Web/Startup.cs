@@ -1,24 +1,11 @@
-﻿using CodingMilitia.PlayBall.Auth.Web.Data;
-using CodingMilitia.PlayBall.Auth.Web.Policies.Handlers;
-using CodingMilitia.PlayBall.Auth.Web.Policies.Requirements;
-using CodingMilitia.PlayBall.Auth.Web.Utilities;
-using Microsoft.AspNetCore.Authorization;
+﻿using CodingMilitia.PlayBall.Auth.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Globalization;
-using System.Security.Claims;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace CodingMilitia.PlayBall.Auth.Web
 {
@@ -47,7 +34,14 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 })
                 .AddConfiguredIdentityServer(_environment, _configuration);
 
-            
+            var dataProtectionKeysLocation = _configuration.GetSection<DataProtectionSettings>(nameof(DataProtectionSettings)).Location;
+            if (!string.IsNullOrWhiteSpace(dataProtectionKeysLocation))
+            {
+                services
+                    .AddDataProtection()
+                    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysLocation));
+                // TODO: encrypt the keys
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
