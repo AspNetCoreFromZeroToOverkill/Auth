@@ -65,7 +65,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.AddDeveloperSigningCredential(
                     filename: configuration
                         .GetSection<SigningCredentialSettings>(nameof(SigningCredentialSettings))
-                        .DeveloperCredentialFilePath);
+                        ?.DeveloperCredentialFilePath);
             }
             else
             {

@@ -34,7 +34,7 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 })
                 .AddConfiguredIdentityServer(_environment, _configuration);
 
-            var dataProtectionKeysLocation = _configuration.GetSection<DataProtectionSettings>(nameof(DataProtectionSettings)).Location;
+            var dataProtectionKeysLocation = _configuration.GetSection<DataProtectionSettings>(nameof(DataProtectionSettings))?.Location;
             if (!string.IsNullOrWhiteSpace(dataProtectionKeysLocation))
             {
                 services
