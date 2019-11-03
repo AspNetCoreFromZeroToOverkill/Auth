@@ -1,0 +1,1 @@
+dotnet watch --project ./src/CodingMilitia.PlayBall.Auth.Web run --environment Development --urls http://localhost:5004
