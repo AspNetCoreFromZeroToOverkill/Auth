@@ -8,16 +8,15 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddConfiguredMvc(this IServiceCollection services)
         {
             services
-                .AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                .AddRazorPagesOptions(options =>
+                .AddControllersWithViews();
+            services
+                .AddRazorPages(options =>
                 {
                     options.Conventions.AuthorizeFolder("/Account");
                     options.Conventions.AuthorizeFolder("/Consent");
                 })
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
                 .AddDataAnnotationsLocalization();
-
             return services;
         }
     }
