@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using CodingMilitia.PlayBall.Auth.Web.Data;
 using CodingMilitia.PlayBall.Auth.Web.Utilities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -34,6 +33,11 @@ namespace Microsoft.Extensions.DependencyInjection
             
             return services;
         }
+    }
+
+    public interface IEmailSender
+    {
+        Task SendEmailAsync(string email, string subject, string htmlMessage);
     }
     
     internal class DummyEmailSender : IEmailSender
