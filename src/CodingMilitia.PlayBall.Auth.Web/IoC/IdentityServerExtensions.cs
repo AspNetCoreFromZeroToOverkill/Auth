@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using CodingMilitia.PlayBall.Auth.Web.Configuration;
 using CodingMilitia.PlayBall.Auth.Web.Data;
 using IdentityServer4;
@@ -9,6 +8,7 @@ using IdentityServer4.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddConfiguredIdentityServer(
             this IServiceCollection services,
-            IHostingEnvironment environment,
+            IHostEnvironment environment,
             IConfiguration configuration)
         {
             var builder = services.AddIdentityServer(options =>
@@ -65,7 +65,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.AddDeveloperSigningCredential(
                     filename: configuration
                         .GetSection<SigningCredentialSettings>(nameof(SigningCredentialSettings))
-                        .DeveloperCredentialFilePath);
+                        ?.DeveloperCredentialFilePath);
             }
             else
             {
