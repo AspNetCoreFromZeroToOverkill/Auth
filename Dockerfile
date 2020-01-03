@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine AS builder
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS builder
 WORKDIR /app
 
 # Copy solution and restore as distinct layers to cache dependencies
@@ -12,7 +12,7 @@ WORKDIR /app/src/CodingMilitia.PlayBall.Auth.Web
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS runtime
 WORKDIR /app
 COPY --from=builder /app/src/CodingMilitia.PlayBall.Auth.Web/out .
 ENTRYPOINT ["dotnet", "CodingMilitia.PlayBall.Auth.Web.dll"]
