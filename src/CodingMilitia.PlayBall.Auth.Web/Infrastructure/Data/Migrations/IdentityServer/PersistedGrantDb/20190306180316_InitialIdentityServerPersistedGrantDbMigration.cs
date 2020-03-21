@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace CodingMilitia.PlayBall.Auth.Web.Migrations.IdentityServer.PersistedGrantDb
+namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Migrations.IdentityServer.PersistedGrantDb
 {
     public partial class InitialIdentityServerPersistedGrantDbMigration : Migration
     {

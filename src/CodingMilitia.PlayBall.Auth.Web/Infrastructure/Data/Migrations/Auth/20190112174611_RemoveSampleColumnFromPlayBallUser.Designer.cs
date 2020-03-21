@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace CodingMilitia.PlayBall.Auth.Web.Migrations.Auth
+namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Migrations.Auth
 {
     [DbContext(typeof(AuthDbContext))]
     [Migration("20190112174611_RemoveSampleColumnFromPlayBallUser")]
