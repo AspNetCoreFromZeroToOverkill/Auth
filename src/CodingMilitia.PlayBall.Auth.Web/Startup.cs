@@ -1,7 +1,6 @@
 ﻿using CodingMilitia.PlayBall.Auth.Web.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -27,13 +26,8 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 .AddConfiguredMvc()
                 .AddConfiguredLocalization()
                 .AddConfiguredIdentity(_configuration)
-                .ConfigureApplicationCookie(options =>
-                {
-                    options.LoginPath = "/Login";
-                    options.LogoutPath = "/Logout";
-                    options.AccessDeniedPath = "/AccessDenied";
-                })
-                .AddConfiguredIdentityServer(_environment, _configuration);
+                .AddConfiguredIdentityServer(_environment, _configuration)
+                .AddEvents();
 
             var dataProtectionKeysLocation =
                 _configuration.GetSection<DataProtectionSettings>(nameof(DataProtectionSettings))?.Location;
@@ -64,7 +58,8 @@ namespace CodingMilitia.PlayBall.Auth.Web
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseIdentityServer();
-            app.UseRequestLocalization(app.ApplicationServices.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
+            app.UseRequestLocalization(app.ApplicationServices
+                .GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();

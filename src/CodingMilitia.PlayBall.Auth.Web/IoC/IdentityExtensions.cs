@@ -28,6 +28,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddEntityFrameworkStores<AuthDbContext>()
                 .AddDefaultTokenProviders();
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Login";
+                options.LogoutPath = "/Logout";
+                options.AccessDeniedPath = "/AccessDenied";
+            });
+            
             services.AddSingleton<IEmailSender, DummyEmailSender>();
             services.AddSingleton<IBase64QrCodeGenerator, Base64QrCodeGenerator>();
             
