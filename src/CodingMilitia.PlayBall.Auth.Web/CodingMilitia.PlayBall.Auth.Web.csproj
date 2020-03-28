@@ -13,11 +13,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.2" />    
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.2" />
+    <PackageReference Include="Scrutor.AspNetCore" Version="1.0.0" />
     <PackageReference Include="SkiaSharp.QrCode" Version="0.3.2" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Infrastructure\Data" />
   </ItemGroup>
 
 </Project>
