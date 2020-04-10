@@ -70,7 +70,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Pages
                     UserName = Input.Email, 
                     Email = Input.Email,
                 };
-                var isFirstUser = !await _userManager.Users.AnyAsync(ct);
+                
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
@@ -85,12 +85,6 @@ namespace CodingMilitia.PlayBall.Auth.Web.Pages
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                    var addClaimResult = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "admin"));
-                    if (!addClaimResult.Succeeded)
-                    {
-                        // TODO: something went wrong, handle it!
-                    }
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
 
