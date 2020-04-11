@@ -24,7 +24,8 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Configurations
             
             builder
                 .Property(e => e.Event)
-                .HasColumnType("jsonb")
+                // using json instead of jsonb, as Newtonsoft.Json expects the $type property to be the first, but jsonb might reorder properties
+                .HasColumnType("json")
                 // Npgsql supports JSON out of the box, but doesn't handle hierarchies, so just using Newtonsoft to avoid more work 
                 .HasConversion(
                     e => JsonConvert.SerializeObject(e, settings),

@@ -34,7 +34,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Migrations.Auth
                     Id = table.Column<long>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     CreatedAt = table.Column<DateTime>(nullable: false),
-                    Event = table.Column<string>(type: "jsonb", nullable: true)
+                    Event = table.Column<string>(type: "json", nullable: true)
                 },
                 constraints: table =>
                 {
