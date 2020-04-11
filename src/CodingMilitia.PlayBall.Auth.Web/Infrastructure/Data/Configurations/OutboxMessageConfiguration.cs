@@ -12,7 +12,8 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Configurations
         {
             var settings = new JsonSerializerSettings
             {
-                TypeNameHandling = TypeNameHandling.All
+                TypeNameHandling = TypeNameHandling.All,
+                
             };
             
             builder
@@ -21,7 +22,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Configurations
             builder
                 .Property(e => e.Id)
                 .UseIdentityAlwaysColumn();
-            
+
             builder
                 .Property(e => e.Event)
                 // using json instead of jsonb, as Newtonsoft.Json expects the $type property to be the first, but jsonb might reorder properties

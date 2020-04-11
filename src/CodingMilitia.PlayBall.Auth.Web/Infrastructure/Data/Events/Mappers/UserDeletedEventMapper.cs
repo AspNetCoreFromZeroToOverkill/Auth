@@ -6,7 +6,7 @@ using CodingMilitia.PlayBall.Auth.Web.Data.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.EventMappers
+namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events.Mappers
 {
     public class UserDeletedEventMapper : IEventMapper
     {

@@ -11,10 +11,15 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IdentityExtensions
     {
-        public static IServiceCollection AddConfiguredIdentity(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddConfiguredIdentity(this IServiceCollection services,
+            IConfiguration configuration)
         {
-            services.AddDbContext<AuthDbContext>(options => options.UseNpgsql(configuration.GetConnectionString("AuthDbContext")));
-            
+            services.AddDbContext<AuthDbContext>(options =>
+                options
+                    .UseNpgsql(configuration.GetConnectionString("AuthDbContext"))
+                    .EnableDetailedErrors()
+                    .EnableSensitiveDataLogging());
+
             services
                 .AddIdentity<PlayBallUser, IdentityRole>(options =>
                 {
@@ -34,10 +39,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.LogoutPath = "/Logout";
                 options.AccessDeniedPath = "/AccessDenied";
             });
-            
+
             services.AddSingleton<IEmailSender, DummyEmailSender>();
             services.AddSingleton<IBase64QrCodeGenerator, Base64QrCodeGenerator>();
-            
+
             return services;
         }
     }
@@ -46,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         Task SendEmailAsync(string email, string subject, string htmlMessage);
     }
-    
+
     internal class DummyEmailSender : IEmailSender
     {
         private readonly ILogger<DummyEmailSender> _logger;
