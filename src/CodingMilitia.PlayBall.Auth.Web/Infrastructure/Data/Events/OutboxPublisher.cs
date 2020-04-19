@@ -33,9 +33,9 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events
                 
                 await _db.SaveChangesAsync(ct);
 
-                await _eventPublisher.PublishAsync(message.Event, ct);
+                await _eventPublisher.PublishAsync(message.Event.ToExternal(), ct);
 
-                // ReSharper disable once MethodSupportsCancellation - messages already published to the broker, try to delete them locally
+                // ReSharper disable once MethodSupportsCancellation - messages already published, try to delete them locally
                 await transaction.CommitAsync();
             }
             catch (Exception)

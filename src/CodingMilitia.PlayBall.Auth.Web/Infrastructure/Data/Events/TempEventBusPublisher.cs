@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using CodingMilitia.PlayBall.Auth.Web.Data.Events;
 using CodingMilitia.PlayBall.Shared.EventBus;
 using Microsoft.Extensions.Logging;
 using EventContracts = CodingMilitia.PlayBall.Auth.Events; 

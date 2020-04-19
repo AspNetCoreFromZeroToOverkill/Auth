@@ -14,7 +14,8 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events
         {
             _logger = logger;
 
-            // TODO: should probably be bounded
+            // If the consumer is slow, this should be a bounded channel to avoid memory growing indefinitely.
+            // To make an informed decision we should instrument the code and gather metrics.
             _messageIdChannel = Channel.CreateUnbounded<long>(
                 new UnboundedChannelOptions
                 {

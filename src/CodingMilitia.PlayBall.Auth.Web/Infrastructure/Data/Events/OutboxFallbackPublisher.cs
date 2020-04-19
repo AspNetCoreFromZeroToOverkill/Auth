@@ -11,7 +11,8 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events
     public class OutboxFallbackPublisher
     {
         private const int MaxBatchSize = 100;
-        
+        private static readonly TimeSpan MinimumMessageAgeToBatch = TimeSpan.FromSeconds(30);
+
         private readonly AuthDbContext _db;
         private readonly TempEventBusPublisher _eventBusPublisher;
 
@@ -23,11 +24,8 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events
 
         public async Task PublishPendingAsync(CancellationToken ct)
         {
-            bool batchPublished;
-            do
-            {
-                batchPublished = await PublishBatchAsync(ct);
-            } while (batchPublished);
+            // ReSharper disable once EmptyEmbeddedStatement - the logic is part of the method invoked in the condition 
+            while (!ct.IsCancellationRequested && await PublishBatchAsync(ct));
         }
 
         private async Task<bool> PublishBatchAsync(CancellationToken ct)
@@ -48,16 +46,16 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events
 
                 if (messages.Count > 0)
                 {
-                    batchPublished = true;
-
                     _db.Set<OutboxMessage>().RemoveRange(messages);
 
                     await _db.SaveChangesAsync(ct);
 
-                    await _eventBusPublisher.PublishAsync(messages.Select(message => message.Event), ct);
+                    await _eventBusPublisher.PublishAsync(messages.Select(message => message.Event.ToExternal()), ct);
+
+                    batchPublished = true;
                 }
 
-                // ReSharper disable once MethodSupportsCancellation - messages already published to the broker, try to delete them locally
+                // ReSharper disable once MethodSupportsCancellation - messages already published, try to delete them locally
                 await transaction.CommitAsync();
             }
             catch (Exception)
@@ -76,7 +74,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events
 
         private static DateTime GetMinimumMessageAgeToBatch()
         {
-            return DateTime.UtcNow - TimeSpan.FromSeconds(30);
+            return DateTime.UtcNow - MinimumMessageAgeToBatch;
         }
     }
 }
