@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "CodingMilitia.PlayBall.Auth.Web": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://localhost:5004;https://localhost:5005"
+    }
+  }
+}
