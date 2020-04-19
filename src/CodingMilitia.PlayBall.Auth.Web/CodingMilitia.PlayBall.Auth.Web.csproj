@@ -16,5 +16,10 @@
     <PackageReference Include="Scrutor.AspNetCore" Version="1.0.0" />
     <PackageReference Include="SkiaSharp.QrCode" Version="0.3.2" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\src\CodingMilitia.PlayBall.Shared.EventBus\CodingMilitia.PlayBall.Shared.EventBus.csproj" />
+    <ProjectReference Include="..\CodingMilitia.PlayBall.Auth.Events\CodingMilitia.PlayBall.Auth.Events.csproj" />
+  </ItemGroup>
 
 </Project>
