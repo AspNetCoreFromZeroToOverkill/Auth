@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CodingMilitia.PlayBall.Shared.EventBus;
 using Microsoft.Extensions.Logging;
-using EventContracts = CodingMilitia.PlayBall.Auth.Events; 
+using EventContracts = CodingMilitia.PlayBall.Auth.Events;
 
 namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events
 {

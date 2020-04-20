@@ -3,8 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CodingMilitia.PlayBall.Auth.Web.Data;
+using CodingMilitia.PlayBall.Shared.EventBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using EventContracts = CodingMilitia.PlayBall.Auth.Events;
 
 namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events
 {
@@ -14,9 +16,11 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events
         private static readonly TimeSpan MinimumMessageAgeToBatch = TimeSpan.FromSeconds(30);
 
         private readonly AuthDbContext _db;
-        private readonly TempEventBusPublisher _eventBusPublisher;
+        private readonly IEventPublisher<EventContracts.BaseAuthEvent> _eventBusPublisher;
 
-        public OutboxFallbackPublisher(AuthDbContext db, TempEventBusPublisher eventBusPublisher)
+        public OutboxFallbackPublisher(
+            AuthDbContext db,
+            IEventPublisher<EventContracts.BaseAuthEvent> eventBusPublisher)
         {
             _db = db;
             _eventBusPublisher = eventBusPublisher;

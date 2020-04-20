@@ -1,6 +1,8 @@
 using CodingMilitia.PlayBall.Auth.Web.Data;
 using CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events;
 using CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Events.Mappers;
+using CodingMilitia.PlayBall.Shared.EventBus;
+using EventContracts = CodingMilitia.PlayBall.Auth.Events;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -22,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<OutboxFallbackPublisher>();
             
             // stub to simulate actual bus implementation
-            services.AddSingleton<TempEventBusPublisher>();
+            services.AddSingleton<IEventPublisher<EventContracts.BaseAuthEvent>, TempEventBusPublisher>();
 
             services.AddHostedService<OutboxBackgroundService>();
             services.AddHostedService<OutboxFallbackBackgroundService>();
