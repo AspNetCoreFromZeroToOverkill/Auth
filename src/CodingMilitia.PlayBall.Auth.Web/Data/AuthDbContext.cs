@@ -29,7 +29,8 @@ namespace CodingMilitia.PlayBall.Auth.Web.Data
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            var wereEventsDetected = MapAndAddEventsIfAnyEvents();
+            var eventsDetected = GetEvents();
+            AddEventsIfAny(eventsDetected);
 
             var result = await base.SaveChangesAsync(cancellationToken);
 
@@ -38,20 +39,21 @@ namespace CodingMilitia.PlayBall.Auth.Web.Data
             return result;
         }
 
-        private bool MapAndAddEventsIfAnyEvents()
+        private IReadOnlyCollection<OutboxMessage> GetEvents()
         {
             var now = DateTime.UtcNow;
 
-            var events = _eventMappers
+            return _eventMappers
                 .SelectMany(mapper => mapper.Map(this, now))
                 .ToList();
+        }
 
-            if (events.Count > 0)
+        private void AddEventsIfAny(IReadOnlyCollection<OutboxMessage> eventsDetected)
+        {
+            if (eventsDetected.Count > 0)
             {
-                OutboxMessages.AddRange(events);
+                Set<OutboxMessage>().AddRange(eventsDetected);
             }
-
-            return events.Count > 0;
         }
     }
 }
