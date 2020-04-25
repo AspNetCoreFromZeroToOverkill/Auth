@@ -12,7 +12,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.Configurations
         {
             var settings = new JsonSerializerSettings
             {
-                TypeNameHandling = TypeNameHandling.All
+                TypeNameHandling = TypeNameHandling.Objects
             };
             
             builder
