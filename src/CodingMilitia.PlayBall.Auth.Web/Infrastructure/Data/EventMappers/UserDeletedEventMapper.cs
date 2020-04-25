@@ -10,13 +10,6 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.EventMappers
 {
     public class UserDeletedEventMapper : IEventMapper
     {
-        private readonly ILogger<UserDeletedEventMapper> _logger;
-
-        public UserDeletedEventMapper(ILogger<UserDeletedEventMapper> logger)
-        {
-            _logger = logger;
-        }
-
         public IEnumerable<OutboxMessage> Map(AuthDbContext db, DateTime occurredAt)
             => db
                 .ChangeTracker

@@ -10,13 +10,6 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.EventMappers
 {
     public class UserUpdatedEventMapper : IEventMapper
     {
-        private readonly ILogger<UserUpdatedEventMapper> _logger;
-
-        public UserUpdatedEventMapper(ILogger<UserUpdatedEventMapper> logger)
-        {
-            _logger = logger;
-        }
-
         public IEnumerable<OutboxMessage> Map(AuthDbContext db, DateTime occurredAt)
         {
             const string UserNameProperty = nameof(PlayBallUser.UserName);
