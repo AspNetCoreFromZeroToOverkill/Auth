@@ -1,5 +1,5 @@
 using CodingMilitia.PlayBall.Auth.Web.Data;
-using CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.EventDetectors;
+using CodingMilitia.PlayBall.Auth.Web.Infrastructure.Data.EventMappers;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -8,8 +8,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddEvents(this IServiceCollection services)
             => services.Scan(
                 scan => scan
-                    .FromAssemblyOf<UserRegisteredEventDetector>()
-                    .AddClasses(classes => classes.AssignableTo(typeof(IEventDetector)))
+                    .FromAssemblyOf<UserRegisteredEventMapper>()
+                    .AddClasses(classes => classes.AssignableTo(typeof(IEventMapper)))
                     .AsImplementedInterfaces()
                     .WithSingletonLifetime()
             );
