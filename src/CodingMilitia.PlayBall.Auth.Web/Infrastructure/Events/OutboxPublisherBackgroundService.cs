@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -9,16 +8,16 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
 {
     public class OutboxPublisherBackgroundService : BackgroundService
     {
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly OutboxPublisher _publisher;
         private readonly OutboxListener _listener;
         private readonly ILogger<OutboxPublisherBackgroundService> _logger;
 
         public OutboxPublisherBackgroundService(
-            IServiceScopeFactory scopeFactory,
+            OutboxPublisher publisher,
             OutboxListener listener,
             ILogger<OutboxPublisherBackgroundService> logger)
         {
-            _scopeFactory = scopeFactory;
+            _publisher = publisher;
             _listener = listener;
             _logger = logger;
         }
@@ -30,9 +29,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
             {
                 try
                 {
-                    using var scope = _scopeFactory.CreateScope();
-                    var publisher = scope.ServiceProvider.GetRequiredService<OutboxPublisher>();
-                    await publisher.PublishAsync(messageId, stoppingToken);
+                    await _publisher.PublishAsync(messageId, stoppingToken);
                 }
                 catch (Exception ex)
                 {

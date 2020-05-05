@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CodingMilitia.PlayBall.Auth.Web.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
@@ -14,14 +15,13 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
         private const int MaxBatchSize = 100;
         private static readonly TimeSpan MinimumMessageAgeToBatch = TimeSpan.FromSeconds(30);
 
-        private readonly AuthDbContext _db;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<OutboxFallbackPublisher> _logger;
 
-        public OutboxFallbackPublisher(
-            AuthDbContext db,
+        public OutboxFallbackPublisher(IServiceScopeFactory serviceScopeFactory,
             ILogger<OutboxFallbackPublisher> logger)
         {
-            _db = db;
+            _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
         }
 
@@ -33,21 +33,19 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
             while (!ct.IsCancellationRequested && await PublishBatchAsync(ct)) ;
         }
 
-        // returns true if a batch was published, false otherwise
+        // returns true if there is a new batch to publish, false otherwise
         private async Task<bool> PublishBatchAsync(CancellationToken ct)
         {
-            await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+            using var scope = _serviceScopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+
+            await using var transaction = await db.Database.BeginTransactionAsync(ct);
 
             try
             {
-                var minimumMessageAgeToBatch = GetMinimumMessageAgeToBatch();
+                var messages = await GetMessageBatchAsync(db, ct);
 
-                var messages = await _db.Set<OutboxMessage>()
-                    .Where(m => m.CreatedAt < minimumMessageAgeToBatch)
-                    .Take(MaxBatchSize)
-                    .ToListAsync(ct);
-
-                if (messages.Count > 0 && await TryDeleteMessagesAsync(messages, ct))
+                if (messages.Count > 0 && await TryDeleteMessagesAsync(db, messages, ct))
                 {
                     // TODO: actually push the events to the event bus
                     _logger.LogInformation(
@@ -59,11 +57,13 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
                     // ReSharper disable once MethodSupportsCancellation - messages already published, try to delete them locally
                     await transaction.CommitAsync();
 
-                    return true;
+                    return await IsNewBatchAvailableAsync(db, ct);
                 }
 
                 await transaction.RollbackAsync(ct);
 
+                // if we got here, there either aren't messages available or are being published concurrently
+                // in either case, we can break the loop
                 return false;
             }
             catch (Exception)
@@ -74,19 +74,27 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
             }
         }
 
-        private static DateTime GetMinimumMessageAgeToBatch()
-        {
-            return DateTime.UtcNow - MinimumMessageAgeToBatch;
-        }
+        private static Task<List<OutboxMessage>> GetMessageBatchAsync(AuthDbContext db, CancellationToken ct)
+            => MessageBatchQuery(db)
+                .Take(MaxBatchSize)
+                .ToListAsync(ct);
+
+        private static Task<bool> IsNewBatchAvailableAsync(AuthDbContext db, CancellationToken ct)
+            => MessageBatchQuery(db).AnyAsync(ct);
+
+        private static IQueryable<OutboxMessage> MessageBatchQuery(AuthDbContext db)
+            => db.Set<OutboxMessage>()
+                .Where(m => m.CreatedAt < GetMinimumMessageAgeToBatch());
 
         private async Task<bool> TryDeleteMessagesAsync(
+            AuthDbContext db,
             IReadOnlyCollection<OutboxMessage> messages,
             CancellationToken ct)
         {
             try
             {
-                _db.Set<OutboxMessage>().RemoveRange(messages);
-                await _db.SaveChangesAsync(ct);
+                db.Set<OutboxMessage>().RemoveRange(messages);
+                await db.SaveChangesAsync(ct);
                 return true;
             }
             catch (DbUpdateConcurrencyException)
@@ -95,6 +103,11 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
                     $"Delete messages [{string.Join(", ", messages.Select(m => m.Id))}] failed, as it was done concurrently.");
                 return false;
             }
+        }
+
+        private static DateTime GetMinimumMessageAgeToBatch()
+        {
+            return DateTime.UtcNow - MinimumMessageAgeToBatch;
         }
     }
 }

@@ -3,30 +3,34 @@ using System.Threading;
 using System.Threading.Tasks;
 using CodingMilitia.PlayBall.Auth.Web.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
 {
     public class OutboxPublisher
     {
-        private readonly AuthDbContext _db;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<OutboxPublisher> _logger;
 
-        public OutboxPublisher(AuthDbContext db, ILogger<OutboxPublisher> logger)
+        public OutboxPublisher(IServiceScopeFactory serviceScopeFactory, ILogger<OutboxPublisher> logger)
         {
-            _db = db;
+            _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
         }
 
         public async Task PublishAsync(long messageId, CancellationToken ct)
         {
-            await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+            using var scope = _serviceScopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+
+            await using var transaction = await db.Database.BeginTransactionAsync(ct);
 
             try
             {
-                var message = await _db.Set<OutboxMessage>().FindAsync(new object[] {messageId}, ct);
+                var message = await db.Set<OutboxMessage>().FindAsync(new object[] {messageId}, ct);
 
-                if (await TryDeleteMessageAsync(message, ct))
+                if (await TryDeleteMessageAsync(db, message, ct))
                 {
                     // TODO: actually push the events to the event bus
                     _logger.LogInformation(
@@ -37,11 +41,11 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
 
                     // ReSharper disable once MethodSupportsCancellation - messages already published, try to delete them locally
                     await transaction.CommitAsync();
-
-                    return;
                 }
-
-                await transaction.RollbackAsync(ct);
+                else
+                {
+                    await transaction.RollbackAsync(ct);
+                }
             }
             catch (Exception)
             {
@@ -51,12 +55,12 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
             }
         }
 
-        private async Task<bool> TryDeleteMessageAsync(OutboxMessage message, CancellationToken ct)
+        private async Task<bool> TryDeleteMessageAsync(AuthDbContext db, OutboxMessage message, CancellationToken ct)
         {
             try
             {
-                _db.Set<OutboxMessage>().Remove(message);
-                await _db.SaveChangesAsync(ct);
+                db.Set<OutboxMessage>().Remove(message);
+                await db.SaveChangesAsync(ct);
                 return true;
             }
             catch (DbUpdateConcurrencyException)

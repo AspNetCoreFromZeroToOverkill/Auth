@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -9,14 +8,14 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
 {
     public class OutboxPublisherFallbackBackgroundService : BackgroundService
     {
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly OutboxFallbackPublisher _fallbackPublisher;
         private readonly ILogger<OutboxPublisherFallbackBackgroundService> _logger;
 
         public OutboxPublisherFallbackBackgroundService(
-            IServiceScopeFactory scopeFactory,
+            OutboxFallbackPublisher fallbackPublisher,
             ILogger<OutboxPublisherFallbackBackgroundService> logger)
         {
-            _scopeFactory = scopeFactory;
+            _fallbackPublisher = fallbackPublisher;
             _logger = logger;
         }
 
@@ -26,9 +25,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
             {
                 try
                 {
-                    using var scope = _scopeFactory.CreateScope();
-                    var publisher = scope.ServiceProvider.GetRequiredService<OutboxFallbackPublisher>();
-                    await publisher.PublishPendingAsync(stoppingToken);
+                    await _fallbackPublisher.PublishPendingAsync(stoppingToken);
                 }
                 catch (Exception ex)
                 {
@@ -37,7 +34,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
                     // Should certainly have some extra checks for the reasons, to act on it. 
                     _logger.LogWarning(ex, "Unexpected error while publishing pending outbox messages.");
                 }
-                
+
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
             }
         }
