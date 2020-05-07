@@ -11,11 +11,16 @@ namespace CodingMilitia.PlayBall.Auth.Web.Data
     public class AuthDbContext : IdentityDbContext<PlayBallUser>
     {
         private readonly IEnumerable<IEventMapper> _eventMappers;
-
-        public AuthDbContext(DbContextOptions<AuthDbContext> options, IEnumerable<IEventMapper> eventMappers)
+        private readonly OnNewOutboxMessages _onNewOutboxMessages;
+        
+        public AuthDbContext(
+            DbContextOptions<AuthDbContext> options,
+            IEnumerable<IEventMapper> eventMappers,
+            OnNewOutboxMessages onNewOutboxMessages)
             : base(options)
         {
             _eventMappers = eventMappers;
+            _onNewOutboxMessages = onNewOutboxMessages;
         }
 
         public DbSet<OutboxMessage> OutboxMessages { get; set; }
@@ -34,7 +39,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Data
 
             var result = await base.SaveChangesAsync(cancellationToken);
 
-            // TODO: publish the events persisted in the outbox
+            NotifyEventsIfAny(eventsDetected);
 
             return result;
         }
@@ -53,6 +58,14 @@ namespace CodingMilitia.PlayBall.Auth.Web.Data
             if (eventsDetected.Count > 0)
             {
                 Set<OutboxMessage>().AddRange(eventsDetected);
+            }
+        }
+        
+        private void NotifyEventsIfAny(IReadOnlyCollection<OutboxMessage> eventsDetected)
+        {
+            if (eventsDetected.Count > 0)
+            {
+                _onNewOutboxMessages(eventsDetected.Select(e => e.Id));
             }
         }
     }
