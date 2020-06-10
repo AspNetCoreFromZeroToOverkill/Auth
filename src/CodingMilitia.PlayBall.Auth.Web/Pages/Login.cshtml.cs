@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using CodingMilitia.PlayBall.Auth.Web.Data;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
