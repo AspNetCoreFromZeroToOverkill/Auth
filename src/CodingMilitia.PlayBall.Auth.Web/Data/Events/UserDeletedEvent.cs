@@ -1,7 +1,6 @@
 namespace CodingMilitia.PlayBall.Auth.Web.Data.Events
 {
-    public class UserDeletedEvent : BaseAuthEvent
+    public class UserDeletedEvent : BaseUserEvent
     {
-        public string UserId { get; set; }
     }
 }

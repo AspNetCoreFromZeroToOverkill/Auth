@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CodingMilitia.PlayBall.Auth.Web.Data;
+using CodingMilitia.PlayBall.Auth.Events;
+using CodingMilitia.PlayBall.Shared.EventBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,12 +19,16 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
 
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<OutboxFallbackPublisher> _logger;
+        private readonly IEventPublisher<BaseAuthEvent> _eventPublisher;
 
-        public OutboxFallbackPublisher(IServiceScopeFactory serviceScopeFactory,
-            ILogger<OutboxFallbackPublisher> logger)
+        public OutboxFallbackPublisher(
+            IServiceScopeFactory serviceScopeFactory,
+            ILogger<OutboxFallbackPublisher> logger,
+            IEventPublisher<BaseAuthEvent> eventPublisher)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
+            _eventPublisher = eventPublisher;
         }
 
         public async Task PublishPendingAsync(CancellationToken ct)
@@ -47,12 +53,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
 
                 if (messages.Count > 0 && await TryDeleteMessagesAsync(db, messages, ct))
                 {
-                    // TODO: actually push the events to the event bus
-                    _logger.LogInformation(
-                        "Events with ids {eventIds} (outbox message ids [{messageIds}]) published -> {events}",
-                        string.Join(", ", messages.Select(message => message.Event.Id)),
-                        string.Join(", ", messages.Select(message => message.Id)),
-                        Newtonsoft.Json.JsonConvert.SerializeObject(messages.Select(message => message.Event)));
+                    await _eventPublisher.PublishAsync(messages.Select(m => m.Event.ToBusEvent()), ct);
 
                     // ReSharper disable once MethodSupportsCancellation - messages already published, try to delete them locally
                     await transaction.CommitAsync();
