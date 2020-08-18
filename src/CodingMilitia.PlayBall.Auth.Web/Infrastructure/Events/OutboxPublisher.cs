@@ -1,7 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CodingMilitia.PlayBall.Auth.Events;
 using CodingMilitia.PlayBall.Auth.Web.Data;
+using CodingMilitia.PlayBall.Shared.EventBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,11 +14,16 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<OutboxPublisher> _logger;
+        private readonly IEventPublisher<BaseAuthEvent> _eventPublisher;
 
-        public OutboxPublisher(IServiceScopeFactory serviceScopeFactory, ILogger<OutboxPublisher> logger)
+        public OutboxPublisher(
+            IServiceScopeFactory serviceScopeFactory,
+            ILogger<OutboxPublisher> logger,
+            IEventPublisher<BaseAuthEvent> eventPublisher)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
+            _eventPublisher = eventPublisher;
         }
 
         public async Task PublishAsync(long messageId, CancellationToken ct)
@@ -32,12 +39,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
 
                 if (await TryDeleteMessageAsync(db, message, ct))
                 {
-                    // TODO: actually push the events to the event bus
-                    _logger.LogInformation(
-                        "Event with id {eventId} (outbox message id {messageId}) published -> {event}",
-                        message.Event.Id,
-                        message.Id,
-                        Newtonsoft.Json.JsonConvert.SerializeObject(message.Event));
+                    await _eventPublisher.PublishAsync(message.Event.ToBusEvent(), ct);
 
                     // ReSharper disable once MethodSupportsCancellation - messages already published, try to delete them locally
                     await transaction.CommitAsync();

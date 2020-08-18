@@ -27,7 +27,7 @@ namespace CodingMilitia.PlayBall.Auth.Web
                 .AddConfiguredLocalization()
                 .AddConfiguredIdentity(_configuration)
                 .AddConfiguredIdentityServer(_environment, _configuration)
-                .AddEvents();
+                .AddEvents(_configuration);
 
             var dataProtectionKeysLocation =
                 _configuration.GetSection<DataProtectionSettings>(nameof(DataProtectionSettings))?.Location;
