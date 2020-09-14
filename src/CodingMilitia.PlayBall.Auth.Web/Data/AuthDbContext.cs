@@ -65,7 +65,7 @@ namespace CodingMilitia.PlayBall.Auth.Web.Data
         {
             if (eventsDetected.Count > 0)
             {
-                _onNewOutboxMessages(eventsDetected.Select(e => e.Id));
+                _onNewOutboxMessages();
             }
         }
     }

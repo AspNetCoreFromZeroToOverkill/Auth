@@ -24,12 +24,11 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            // TODO: one message at a time might hinder throughput, consider batching
-            await foreach (var messageId in _listener.GetAllMessageIdsAsync(stoppingToken))
+            while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    await _publisher.PublishAsync(messageId, stoppingToken);
+                    await _publisher.PublishPendingAsync(stoppingToken);
                 }
                 catch (Exception ex)
                 {
@@ -38,6 +37,14 @@ namespace CodingMilitia.PlayBall.Auth.Web.Infrastructure.Events
                     // Should certainly have some extra checks for the reasons, to act on it. 
                     _logger.LogWarning(ex, "Unexpected error while publishing pending outbox messages.");
                 }
+
+                // wait for whatever occurs first:
+                // - being notified of new messages added to the outbox
+                // - poll the outbox every 30s, for example, in cases where another instance of the service persisted
+                //   something but didn't publish, or some error occurred when publishing and there are pending messages
+                await Task.WhenAny(
+                    _listener.WaitForMessagesAsync(stoppingToken),
+                    Task.Delay(TimeSpan.FromSeconds(30), stoppingToken));
             }
         }
     }

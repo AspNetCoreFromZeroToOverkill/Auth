@@ -26,10 +26,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<OutboxListener>();
             services.AddSingleton<OnNewOutboxMessages>(s => s.GetRequiredService<OutboxListener>().OnNewMessages);
             services.AddSingleton<OutboxPublisher>();
-            services.AddSingleton<OutboxFallbackPublisher>();
 
             services.AddHostedService<OutboxPublisherBackgroundService>();
-            services.AddHostedService<OutboxPublisherFallbackBackgroundService>();
 
             services.AddTopicDistributor<BaseAuthEvent>(new[] {typeof(BaseUserEvent)});
             
